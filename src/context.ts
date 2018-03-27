@@ -1,11 +1,8 @@
 import * as Bluebird from 'bluebird'
 import {merge} from 'lodash'
 
-import Provider from './provider'
-
 type ProviderDecorator = (
   (<T extends {(): {[key: string]: any}}>(target: T) => T) &
-  ClassDecorator &
   MethodDecorator &
   PropertyDecorator
 )
@@ -52,42 +49,36 @@ class Context {
 
   public provides = (...keys: string[]): ProviderDecorator => (
     (target: any, propertyKey?: string, descriptor?: PropertyDescriptor): any => {
-      let register
-  
+      const register = (provider) => {
+        keys.forEach((key) => {
+          this.register(key, provider)
+        })
+      }
+
       if (descriptor === undefined) {
-        if (target.prototype instanceof Provider) {
-          // Class decorator
-          keys.forEach((key) => { this.register(key, () => ({[key]: new target()})) })
-        } else {
-          // Plain function call
-          keys.forEach((key) => { this.register(key, target) })
-        }
-  
+        // Plain function call
+        register(target)
         return target
       } else {
         // Property decorator
-        keys.forEach((key) => { this.register(key, descriptor.value) })
+        register(descriptor.value)
       }
     }
   )
 
   public using = (...keys: string[]): ConsumerDecorator => (
     (target: any, propertyKey?: string, descriptor?: PropertyDescriptor): any => {
-      let consumer
-  
-      const wrapped = async (...ownArgs) => {
+      const wrap = (consumer) => async (...ownArgs) => {
         const resolvedArgs = await Bluebird.mapSeries(keys, this.resolve)
         return consumer(...resolvedArgs, ...ownArgs)
       }
   
       if (descriptor === undefined) {
         // Plain function call
-        consumer = target
-        return wrapped
+        return wrap(target)
       } else {
         // Property decorator
-        consumer = descriptor.value.bind(target)
-        descriptor.value = wrapped
+        descriptor.value = wrap(descriptor.value.bind(target))
       }
     }
   )
