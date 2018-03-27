@@ -1,6 +1,5 @@
-**/.gitignore
-
+.gitignore
 .nyc_output/
-
 src/
+test/
 ts*.json
