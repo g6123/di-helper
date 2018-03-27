@@ -1,7 +1,12 @@
-import {expect} from 'chai'
+import * as chai from 'chai'
+import * as spies from 'chai-spies'
 
 import Context from '../src/context'
 import Provider from '../src/provider'
+
+const {expect} = chai
+
+chai.use(spies)
 
 describe('Context {}', () => {
   let context: Context
@@ -29,7 +34,26 @@ describe('Context {}', () => {
     expect(await context.resolve(key2)).to.be.eq(value2)
   })
 
-  describe('Context#register() and Context#resolve()', () => {
+  it('Context#register() and Context#resolveAll()', async () => {
+    // Given
+    const key1 = 'test-key1'
+    const provider1 = chai.spy()
+
+    const key2 = 'test-key2'
+    const provider2 = chai.spy()
+
+    // When
+    context.register(key1, provider1)
+    context.register(key2, provider2)
+
+    await context.resolveAll()
+
+    // Then
+    expect(provider1).to.be.called()
+    expect(provider2).to.be.called()
+})
+
+describe('Context#register() and Context#resolve()', () => {
     it('With syncronous provider', async () => {
       // Given
       const key = 'test-key'
@@ -162,6 +186,19 @@ describe('Context {}', () => {
   })
 
   describe('Error cases', () => {
-    // TODO
+    it('Resolving module not provided by any providers', async () => {
+      // Given
+      const key = 'test-key'
+
+      // When
+      let error = null
+
+      await context.resolve(key).catch((_error) => {
+        error = _error
+      })
+
+      // Then
+      expect(error).to.be.instanceof(Error)
+    })
   })
 })
