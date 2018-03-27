@@ -2,7 +2,6 @@ import * as chai from 'chai'
 import * as spies from 'chai-spies'
 
 import Context from '../src/context'
-import Provider from '../src/provider'
 
 const {expect} = chai
 
@@ -96,18 +95,6 @@ describe('Context#register() and Context#resolve()', () => {
       expect(await context.resolve(key)).to.be.eq(value)
     })
 
-    it('Via class decorator', async () => {
-      // Given
-      const key = 'test-key'
-
-      // When
-      @context.provides(key)
-      class Class extends Provider {}
-
-      // Then
-      expect(await context.resolve(key)).to.be.instanceOf(Class)
-    })
-
     it('Via method decorator', async () => {
       // Given
       const key = 'test-key'
@@ -117,7 +104,7 @@ describe('Context#register() and Context#resolve()', () => {
       class Class {
 
         @context.provides(key)
-        method() {
+        static method() {
           return {[key]: value}
         }
       }
