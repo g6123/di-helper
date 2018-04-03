@@ -1,5 +1,7 @@
 # di-helper
 
+![npm](https://img.shields.io/npm/v/di-helper.svg)
+
 A concise JavaScript dependency injector
 
 ```javascript
