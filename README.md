@@ -1,6 +1,8 @@
 # di-helper
 
-![npm](https://img.shields.io/npm/v/di-helper.svg)
+<a href="http://npmjs.com/di-helper">
+  <img src="https://img.shields.io/npm/v/di-helper.svg?style=flat-square" alt="npm">
+</a>
 
 A concise JavaScript dependency injector
 
@@ -79,15 +81,15 @@ context.resolve('logger').then((logger) => {
 })
 ```
 
-### `resolveAll(pattern?: (string | string[] | (key: string) => boolean | RegExp)): Promise`
+### `resolveAll(pattern?): Promise`
 
 Executes all providers that matches the pattern and cache the results not resolved yet.
 
  - When no arguments given, all providers are matched.
- - `string`: Test if the provider's key euqals.
- - `string[]`: Test if the provider's key is included.
- - `(key: string) => boolean`: Test if `true` is returned when the provider's key is given.
- - `RegExp`: Test the provider's key by the given expression.
+ - If `pattern` is `string`: Test if the provider's key euqals.
+ - If `pattern` is `string[]`: Test if the provider's key is included.
+ - If `pattern` is `(key: string) => boolean`: Test if `true` is returned when the provider's key is given.
+ - If `pattern` is `RegExp`: Test the provider's key by the given expression.
 
 ```javascript
 context.resolveAll()
