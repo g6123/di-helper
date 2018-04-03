@@ -1,5 +1,5 @@
 import * as Bluebird from 'bluebird'
-import {merge} from 'lodash'
+import {merge, constant, isString, isArray, isFunction, isRegExp} from 'lodash'
 
 type ProviderDecorator = (
   (<T extends {(): {[key: string]: any}}>(target: T) => T) &
@@ -23,6 +23,7 @@ class Context {
   }
 
   public resolve = async (key: string) => {
+
     if (this.modules[key] === undefined) {
       const provider = this.providers.get(key)
 
@@ -39,9 +40,25 @@ class Context {
     return this.modules[key]
   }
 
-  public resolveAll = async () => (
-    Bluebird.each(this.providers.keys(), this.resolve)
-  )
+  public resolveAll = async (pattern?: string | string[] | ((key: string) => boolean) | RegExp) => {
+    let filterer
+
+    if (isString(pattern)) {
+      filterer = (key) => (key === pattern)
+    } else if (isArray(pattern)) {
+      filterer = (key) => (pattern.indexOf(key) >= 0)
+    } else if (isFunction(pattern)) {
+      filterer = pattern
+    } else if (isRegExp(pattern)) {
+      filterer = (key) => pattern.test(key)
+    } else {
+      filterer = constant(true)
+    }
+
+    return Bluebird.resolve(this.providers.keys())
+      .filter(filterer)
+      .each(this.resolve)
+  }
 
   public register = (key: string, provider) => {
     this.providers.set(key, provider)

@@ -33,26 +33,78 @@ describe('Context {}', () => {
     expect(await context.resolve(key2)).to.be.eq(value2)
   })
 
-  it('Context#register() and Context#resolveAll()', async () => {
-    // Given
+  describe('Context#register() and Context#resolveAll()', () => {
     const key1 = 'test-key1'
-    const provider1 = chai.spy()
+    let provider1
 
     const key2 = 'test-key2'
-    const provider2 = chai.spy()
+    let provider2
 
-    // When
-    context.register(key1, provider1)
-    context.register(key2, provider2)
+    const key3 = 'test-key3'
+    let provider3
 
-    await context.resolveAll()
+    beforeEach(() => {
+      provider1 = chai.spy()
+      context.register(key1, provider1)
 
-    // Then
-    expect(provider1).to.be.called()
-    expect(provider2).to.be.called()
-})
+      provider2 = chai.spy()
+      context.register(key2, provider2)
 
-describe('Context#register() and Context#resolve()', () => {
+      provider3 = chai.spy()
+      context.register(key3, provider3)
+    })
+
+    it('context#resolveAll()', async () => {
+      // When
+      await context.resolveAll()
+
+      // Then
+      expect(provider1).to.be.called()
+      expect(provider2).to.be.called()
+    })
+
+    it('context#resolveAll(key: string)', async () => {
+      // When
+      await context.resolveAll('test-key1')
+
+      // Then
+      expect(provider1).to.be.called()
+      expect(provider2).not.to.be.called()
+      expect(provider3).not.to.be.called()
+    })
+
+    it('context#resolveAll(key: string[])', async () => {
+      // When
+      await context.resolveAll(['test-key1', 'test-key2'])
+
+      // Then
+      expect(provider1).to.be.called()
+      expect(provider2).to.be.called()
+      expect(provider3).not.to.be.called()
+    })
+
+    it('context#resolveAll(key: ((key: string) => boolean))', async () => {
+      // When
+      await context.resolveAll((key) => key.endsWith('-key1'))
+
+      // Then
+      expect(provider1).to.be.called()
+      expect(provider2).not.to.be.called()
+      expect(provider3).not.to.be.called()
+    })
+
+    it('context#resolveAll(key: RegExp)', async () => {
+      // When
+      await context.resolveAll(/-key[2-3]$/)
+
+      // Then
+      expect(provider1).not.to.be.called()
+      expect(provider2).to.be.called()
+      expect(provider3).to.be.called()
+    })
+  })
+
+  describe('Context#register() and Context#resolve()', () => {
     it('With syncronous provider', async () => {
       // Given
       const key = 'test-key'

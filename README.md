@@ -77,9 +77,15 @@ context.resolve('logger').then((logger) => {
 })
 ```
 
-### `resolveAll(): Promise`
+### `resolveAll(pattern?: (string | string[] | (key: string) => boolean | RegExp)): Promise`
 
-Executes all providers and cache the result not resolved yet.
+Executes all providers that matches the pattern and cache the results not resolved yet.
+
+ - When no arguments given, all providers are matched.
+ - `string`: Test if the provider's key euqals.
+ - `string[]`: Test if the provider's key is included.
+ - `(key: string) => boolean`: Test if `true` is returned when the provider's key is given.
+ - `RegExp`: Test the provider's key by the given expression.
 
 ```javascript
 context.resolveAll()
