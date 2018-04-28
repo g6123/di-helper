@@ -1,5 +1,5 @@
 import * as Bluebird from 'bluebird'
-import {merge, constant, isString, isArray, isFunction, isRegExp} from 'lodash'
+import {assign, constant, isString, isArray, isFunction, isRegExp} from 'lodash'
 
 type ProviderDecorator = (
   (<T extends {(): {[key: string]: any}}>(target: T) => T) &
@@ -19,7 +19,7 @@ class Context {
   private providers = new Map()
 
   public provide = (modules: object) => {
-    merge(this.modules, modules)
+    assign(this.modules, modules)
   }
 
   public resolve = async (key: string) => {

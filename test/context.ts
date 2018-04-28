@@ -20,7 +20,7 @@ describe('Context {}', () => {
     const value1 = 'test-value1'
 
     const key2 = 'test-key2'
-    const value2 = 'test-value2'
+    const value2 = Object.create(null)
 
     // When
     context.provide({
