@@ -4,7 +4,7 @@
   "description": "A concise JavaScript dependency injector",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "repository": "https://github.com/g6123/auto-provision",
+  "repository": "https://github.com/g6123/di-helper",
   "author": "cumul <gg6123@naver.com>",
   "license": "MIT",
   "scripts": {
