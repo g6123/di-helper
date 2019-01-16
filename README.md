@@ -7,13 +7,13 @@
 A concise JavaScript dependency injector
 
 ```javascript
-import context from 'di-helper';
+import { provide, using } from 'di-helper';
 
-context.provide('logger', () => {
+provide('logger', () => {
   return console.log;
 });
 
-context.using((['logger'])(logger => {
+using((['logger'])(logger => {
   logger('The logger has been injected');
 });
 ```
@@ -25,9 +25,9 @@ context.using((['logger'])(logger => {
 `di-heper` is built into UMD package, which supports both ESM, CommonJS, etc..
 
 ```javascript
-// Default instance and its wrapper method
-import context from 'di-helper';
-const { default: context } = require('di-helper');
+// Default instance and its methods
+import { context, provide, resolve, resolveAll, using } from 'di-helper';
+const { context, provide, resolve, resolveAll, using } = require('di-helper');
 
 // Context class
 import { Context } from 'di-helper';

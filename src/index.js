@@ -1,6 +1,6 @@
 import Context from './context';
 
-const defaultContext = new Context({ name: 'default' });
+export const context = new Context({ name: 'default' });
+export const { provide, resolve, resolveAll, using } = context;
 
-export { Context, defaultContext };
-export default defaultContext;
+export { Context };
