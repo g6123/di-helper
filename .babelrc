@@ -9,6 +9,7 @@
         },
         "spec": false,
         "loose": true,
+        "useBuiltIns": "usage",
         "modules": "umd"
       }
     ]
@@ -33,14 +34,5 @@
         "loose": true
       }
     ]
-  ],
-  "env": {
-    "test": {
-      "plugins": [
-        [
-          "@babel/plugin-transform-runtime"
-        ]
-      ]
-    }
-  }
+  ]
 }
