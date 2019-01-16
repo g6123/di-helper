@@ -1,0 +1,15 @@
+extends:
+  - ../.eslintrc.yml
+
+parser: babel-eslint
+
+parserOptions:
+  sourceType: module
+
+env:
+  node: false
+
+rules:
+  import/order:
+    - warn
+    - newlines-between: never
