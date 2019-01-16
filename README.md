@@ -26,8 +26,8 @@ context.using((['logger'])(logger => {
 
 ```javascript
 // Default instance and its wrapper method
-import context, { defaultUsing } from 'di-helper';
-const { default: context, usingDefault: using } = require('di-helper');
+import context from 'di-helper';
+const { default: context } = require('di-helper');
 
 // Context class
 import { Context } from 'di-helper';

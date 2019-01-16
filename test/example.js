@@ -1,5 +1,5 @@
 import test from 'ava';
-import defaultContext, { usingDefault } from '../src';
+import context from '../src';
 
 test('Example from README', async t => {
   // Given
@@ -11,11 +11,11 @@ test('Example from README', async t => {
   };
 
   // When
-  await defaultContext.provide('obj', () => {
+  await context.provide('obj', () => {
     return obj;
   });
 
-  await usingDefault(['obj'])(resolvedObj => {
+  await context.using(['obj'])(resolvedObj => {
     resolvedObj.update();
   })();
 

@@ -1,6 +1,6 @@
 {
   "name": "di-helper",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A concise JavaScript dependency injector",
   "repository": "https://github.com/g6123/di-helper",
   "author": "cumul <gg6123@naver.com>",
