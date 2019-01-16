@@ -26,8 +26,8 @@ using((['logger'])(logger => {
 
 ```javascript
 // Default instance and its methods
-import { context, provide, resolve, resolveAll, using } from 'di-helper';
-const { context, provide, resolve, resolveAll, using } = require('di-helper');
+import { context, provide, alias, resolve, resolveAll, using } from 'di-helper';
+const { context, provide, alias, resolve, resolveAll, using } = require('di-helper');
 
 // Context class
 import { Context } from 'di-helper';
@@ -37,6 +37,10 @@ const { Context } = require('di-helper');
 ## Methods
 
 ### `provide()`
+
+_WIP_
+
+### `alias()`
 
 _WIP_
 

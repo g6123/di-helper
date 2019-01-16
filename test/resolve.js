@@ -27,6 +27,22 @@ test('Promise resolve', async t => {
   t.is(await context.resolve(key), value);
 });
 
+test('Resolve by alias', async t => {
+  // Given
+  const context = new Context();
+  const key = 'test-key';
+  const aliasKey = 'test-key-alias';
+  const value = 'test-value';
+
+  context.provide(key, value);
+
+  // When
+  context.alias(aliasKey, key);
+
+  // Then
+  t.is(await context.resolve(aliasKey), value);
+});
+
 test('Resolve all (cond=undefined)', async t => {
   // Given
   const context = new Context();

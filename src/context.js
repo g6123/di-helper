@@ -52,6 +52,12 @@ class Context {
   }
 
   @autobind
+  alias(key, existingKey) {
+    this.modules[key] = this.modules[existingKey];
+    return this;
+  }
+
+  @autobind
   resolve(key, options = {}) {
     const originalValue = this.modules[key];
 
