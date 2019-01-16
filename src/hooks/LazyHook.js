@@ -6,23 +6,28 @@ const VALUE = Symbol('LAZY_HOOK_VALUE');
 
 class LazyHook extends BaseHook {
   onProvide(key, value, originalValue, options) {
-    const isDisabled = options && options.lazy === false;
-
-    const wrappedValue = {
-      [ENABLED]: isCallable(value) && !isDisabled,
-      [VALUE]: value,
-    };
-
-    return wrappedValue;
+    if (options !== undefined && options !== null && options.lazy !== undefined) {
+      return { [ENABLED]: !!options.lazy, [VALUE]: value };
+    } else {
+      return { [ENABLED]: isCallable(value), [VALUE]: value };
+    }
   }
 
   onResolve(key, wrappedValue, originalValue, options) {
     const value = wrappedValue[VALUE];
 
-    if (wrappedValue[ENABLED]) {
-      return value();
+    if (options !== undefined && options !== null && options.lazy !== undefined) {
+      if (options.lazy) {
+        return value();
+      } else {
+        return super.onResolve(key, value, originalValue, options);
+      }
     } else {
-      return super.onResolve(key, value, originalValue, options);
+      if (wrappedValue[ENABLED]) {
+        return value();
+      } else {
+        return super.onResolve(key, value, originalValue, options);
+      }
     }
   }
 }

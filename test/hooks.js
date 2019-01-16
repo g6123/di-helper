@@ -15,7 +15,7 @@ test('Lazy resolve hook', async t => {
   t.is(await context.resolve(key), value);
 });
 
-test('Lazy resolve hook disabled', async t => {
+test('Lazy resolve hook disabled in provider', async t => {
   // Given
   const context = new Context();
   const key = 'test-key';
@@ -28,6 +28,36 @@ test('Lazy resolve hook disabled', async t => {
   // Then
   t.is(await context.resolve(key), lazyValue);
   t.not(await context.resolve(key), value);
+});
+
+test('Lazy resolve hook enabled in resolver', async t => {
+  // Given
+  const context = new Context();
+  const key = 'test-key';
+  const value = 'test-value';
+  const lazyValue = () => value;
+
+  // When
+  context.provide(key, lazyValue, { lazy: false });
+
+  // Then
+  t.is(await context.resolve(key), lazyValue);
+  t.is(await context.resolve(key, { lazy: true }), value);
+});
+
+test('Lazy resolve hook disabled in resolver', async t => {
+  // Given
+  const context = new Context();
+  const key = 'test-key';
+  const value = 'test-value';
+  const lazyValue = () => value;
+
+  // When
+  context.provide(key, lazyValue);
+
+  // Then
+  t.is(await context.resolve(key, { lazy: false }), lazyValue);
+  t.is(await context.resolve(key), value);
 });
 
 test('Add hook for provide()', async t => {
