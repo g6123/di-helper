@@ -8,7 +8,7 @@ test('Simple resolve', async t => {
   const value = 'test-value';
 
   // When
-  context.provide(key, value);
+  context.provide(key).as(value);
 
   // Then
   t.is(await context.resolve(key), value);
@@ -21,7 +21,7 @@ test('Promise resolve', async t => {
   const value = 'test-value';
 
   // When
-  context.provide(key, Promise.resolve(value));
+  context.provide(key).as(Promise.resolve(value));
 
   // Then
   t.is(await context.resolve(key), value);
@@ -34,7 +34,7 @@ test('Resolve from provider', async t => {
   const value = 'test-value';
 
   // When
-  context.addProvider(key, () => value);
+  context.provide(key).with(() => value);
 
   // Then
   t.is(await context.resolve(key), value);
@@ -47,10 +47,10 @@ test('Resolve from alias', async t => {
   const aliasKey = 'test-key-alias';
   const value = 'test-value';
 
-  context.provide(key, value);
+  context.provide(key).as(value);
 
   // When
-  context.addAlias(aliasKey, key);
+  context.provide(aliasKey).aliasTo(key);
 
   // Then
   t.is(await context.resolve(aliasKey), value);
@@ -63,7 +63,7 @@ test('Resolve all (cond=undefined)', async t => {
   const value = 'test-value';
 
   // When
-  context.provide(key, value);
+  context.provide(key).as(value);
 
   // Then
   t.deepEqual(await context.resolveAll(), [value]);
@@ -76,7 +76,7 @@ test('Resolve all (cond=true)', async t => {
   const value = 'test-value';
 
   // When
-  context.provide(key, value);
+  context.provide(key).as(value);
 
   // Then
   t.deepEqual(await context.resolveAll(true), [value]);
@@ -89,7 +89,7 @@ test('Resolve all (null)', async t => {
   const value = 'test-value';
 
   // When
-  context.provide(key, value);
+  context.provide(key).as(value);
 
   // Then
   t.deepEqual(await context.resolveAll(null), []);
@@ -102,7 +102,7 @@ test('Resolve none (cond=false)', async t => {
   const value = 'test-value';
 
   // When
-  context.provide(key, value);
+  context.provide(key).as(value);
 
   // Then
   t.deepEqual(await context.resolveAll(false), []);
@@ -115,7 +115,7 @@ test('Resolve by regular expression', async t => {
   const value = 'test-value';
 
   // When
-  context.provide(key, value);
+  context.provide(key).as(value);
 
   // Then
   t.deepEqual(await context.resolveAll(/^test-/), [value]);
@@ -129,7 +129,7 @@ test('Resolve by array', async t => {
   const value = 'test-value';
 
   // When
-  context.provide(key, value);
+  context.provide(key).as(value);
 
   // Then
   t.deepEqual(await context.resolveAll([key]), [value]);
@@ -142,7 +142,7 @@ test('Resolve by predicator function', async t => {
   const value = 'test-value';
 
   // When
-  context.provide(key, value);
+  context.provide(key).as(value);
 
   // Then
   t.deepEqual(await context.resolveAll(() => true), [value]);

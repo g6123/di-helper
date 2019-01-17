@@ -2,8 +2,7 @@ import autobind from 'autobind-decorator';
 import Promise from 'bluebird';
 import isCallable from 'is-callable';
 import DependencyError from './error';
-
-const OPTIONS = Symbol('PROVIDER_OPTIONS');
+import Provider from './provider';
 
 class Context {
   static repo = {};
@@ -17,10 +16,8 @@ class Context {
   }
 
   _providers = {};
-  _hooks = [];
-  _modules = {};
 
-  constructor({ name = null } = {}) {
+  constructor(name) {
     this.name = name;
 
     if (name) {
@@ -29,59 +26,28 @@ class Context {
   }
 
   @autobind
-  provide(key, value, provideOptions = {}) {
-    return this.addProvider(key, () => value, { constant: true, ...provideOptions });
-  }
-
-  @autobind
-  addProvider(key, provider, provideOptions = {}) {
-    if (!isCallable(provider)) {
-      throw new DependencyError('Provider must be callable');
-    }
-
+  provide(key) {
+    const provider = new Provider(this);
     this._providers[key] = provider;
-    this._providers[key][OPTIONS] = provideOptions;
-
-    return this;
+    return provider;
   }
 
   @autobind
-  addAlias(key, existingKey, provideOptions = {}) {
-    return this.addProvider(key, () => this._providers[existingKey](), { alias: true, ...provideOptions });
-  }
-
-  @autobind
-  addHook(hook) {
-    this._hooks.push(hook);
-    return this;
-  }
-
-  @autobind
-  resolve(key, resolveOptions = {}) {
-    if (this._modules.hasOwnProperty(key)) {
-      return Promise.resolve(this._modules[key]);
-    }
-
-    if (!this._providers.hasOwnProperty(key)) {
-      return Promise.reject(new DependencyError(`Cannot find provider: ${key}`));
-    }
-
+  resolve(key) {
     const provider = this._providers[key];
-    const options = { ...provider[OPTIONS], ...resolveOptions };
 
-    return Promise.resolve(provider())
-      .then(value => this._applyPostResolveHooks(key, value, options))
-      .then(hookedValue => {
-        this._modules[key] = hookedValue;
-        return hookedValue;
-      });
+    if (provider === undefined) {
+      return Promise.reject(new DependencyError(`Cannot find provider for: ${key}`));
+    } else {
+      return Promise.resolve(provider.get());
+    }
   }
 
   @autobind
-  resolveAll(cond, options = {}) {
+  resolveAll(cond) {
     if (Array.isArray(cond)) {
       return Promise.resolve(cond)
-        .map(c => this.resolveAll(c, options))
+        .map(c => this.resolveAll(c))
         .reduce((acc, item) => [...acc, ...item], [])
         .filter(values => !!values);
     }
@@ -89,20 +55,20 @@ class Context {
     if (cond instanceof RegExp) {
       return Promise.resolve(Object.keys(this._providers))
         .filter(key => cond.test(key))
-        .map(key => this.resolve(key, options))
+        .map(key => this.resolve(key))
         .filter(values => !!values);
     }
 
     if (isCallable(cond)) {
       return Promise.resolve(Object.keys(this._providers))
         .filter(cond)
-        .map(key => this.resolve(key, options))
+        .map(key => this.resolve(key))
         .filter(values => !!values);
     }
 
     if (cond === undefined || cond === true) {
       return Promise.resolve(Object.keys(this._providers))
-        .map(key => this.resolve(key, options))
+        .map(key => this.resolve(key))
         .filter(values => !!values);
     }
 
@@ -110,26 +76,14 @@ class Context {
       return Promise.resolve([]);
     }
 
-    return this.resolve(cond, options)
+    return this.resolve(cond)
       .then(value => [value])
       .filter(values => !!values);
   }
 
   @autobind
-  using(cond, tags) {
-    return consumer => (...ownArgs) => this.resolveAll(cond, tags).then(values => consumer(...values, ...ownArgs));
-  }
-
-  _applyPostResolveHooks(key, value, options) {
-    return Promise.reduce(
-      this._hooks,
-      (arg, hook) =>
-        Promise.resolve(hook.postResolve(arg)).then(value => {
-          arg.value = value;
-          return arg;
-        }),
-      { key, value, originalValue: value, options },
-    ).then(({ value }) => value);
+  using(cond, consumer) {
+    return (...ownArgs) => this.resolveAll(cond).then(values => consumer(...values, ...ownArgs));
   }
 }
 

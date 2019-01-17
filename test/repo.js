@@ -6,7 +6,7 @@ test('Get from repository', t => {
   const name = 'test-name';
 
   // When
-  const context = new Context({ name });
+  const context = new Context(name);
 
   // Then
   t.is(Context.get(name), context);
@@ -15,7 +15,7 @@ test('Get from repository', t => {
 test('Delete from repository', t => {
   // Given
   const name = 'test-name';
-  const context = new Context({ name });
+  const context = new Context(name);
 
   // When
   Context.delete(name);

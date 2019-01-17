@@ -7,15 +7,21 @@
 A concise JavaScript dependency injector
 
 ```javascript
-import { provide, using } from 'di-helper';
+import { provide } from 'di-helper';
 
-provide('logger', () => {
+provide('logger').with(() => {
   return console.log;
 });
 
-using((['logger'])(logger => {
-  logger('The logger has been injected');
+// ...
+
+import { using } from 'di-helper';
+
+const greet = using((['logger'], log => {
+  log('The logger has been injected');
 });
+
+greet();
 ```
 
 ## Usage
@@ -26,8 +32,8 @@ using((['logger'])(logger => {
 
 ```javascript
 // Default instance and its methods
-import { context, provide, alias, resolve, resolveAll, using } from 'di-helper';
-const { context, provide, alias, resolve, resolveAll, using } = require('di-helper');
+import { context, provide, resolve, resolveAll, using } from 'di-helper';
+const { context, provide, resolve, resolveAll, using } = require('di-helper');
 
 // Context class
 import { Context } from 'di-helper';

@@ -9,9 +9,9 @@ test('Simple resolve through using()', async t => {
   let resolvedValue;
 
   // When
-  context.provide(key, value);
+  context.provide(key).as(value);
 
-  await context.using([key])(v => {
+  await context.using([key], v => {
     resolvedValue = v;
   })();
 
@@ -28,9 +28,9 @@ test('Resolve through using() with additional arguments', async t => {
   let resolvedValues;
 
   // When
-  context.provide(key, value1);
+  context.provide(key).as(value1);
 
-  await context.using([key])((v1, v2) => {
+  await context.using([key], (v1, v2) => {
     resolvedValues = [v1, v2];
   })(value2);
 

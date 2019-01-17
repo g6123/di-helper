@@ -1,5 +1,5 @@
 import test from 'ava';
-import { addProvider, using } from '../src';
+import { provide, using } from '../src';
 
 test('Example from README', async t => {
   // Given
@@ -11,13 +11,15 @@ test('Example from README', async t => {
   };
 
   // When
-  await addProvider('obj', () => {
+  await provide('obj').with(() => {
     return obj;
   });
 
-  await using(['obj'])(resolvedObj => {
+  const greet = using(['obj'], resolvedObj => {
     resolvedObj.update();
-  })();
+  });
+
+  await greet();
 
   // Then
   t.is(obj.flag, true);
