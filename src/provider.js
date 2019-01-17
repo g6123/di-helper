@@ -34,6 +34,7 @@ class Provider {
   get() {
     if (!this.dirty) {
       this.value = this.getter();
+      this.dirty = true;
     }
 
     return this.value;

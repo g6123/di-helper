@@ -1,7 +1,7 @@
 import test from 'ava';
 import { Context } from '../src';
 
-test('Simple resolve', async t => {
+test('Resolve', async t => {
   // Given
   const context = new Context();
   const key = 'test-key';
@@ -14,7 +14,25 @@ test('Simple resolve', async t => {
   t.is(await context.resolve(key), value);
 });
 
-test('Promise resolve', async t => {
+test('Memoized resolve', async t => {
+  // Given
+  const context = new Context();
+  const key = 'test-key';
+  let count = 0;
+
+  // When
+  context.provide(key).with(() => {
+    count++;
+  });
+
+  await context.resolve(key);
+  await context.resolve(key);
+
+  // Then
+  t.is(count, 1);
+});
+
+test('Resolve Promise', async t => {
   // Given
   const context = new Context();
   const key = 'test-key';
@@ -27,7 +45,7 @@ test('Promise resolve', async t => {
   t.is(await context.resolve(key), value);
 });
 
-test('Resolve from provider', async t => {
+test('Resolve getter', async t => {
   // Given
   const context = new Context();
   const key = 'test-key';
@@ -40,7 +58,7 @@ test('Resolve from provider', async t => {
   t.is(await context.resolve(key), value);
 });
 
-test('Resolve from alias', async t => {
+test('Resolve alias', async t => {
   // Given
   const context = new Context();
   const key = 'test-key';
