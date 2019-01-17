@@ -27,7 +27,20 @@ test('Promise resolve', async t => {
   t.is(await context.resolve(key), value);
 });
 
-test('Resolve by alias', async t => {
+test('Resolve from provider', async t => {
+  // Given
+  const context = new Context();
+  const key = 'test-key';
+  const value = 'test-value';
+
+  // When
+  context.addProvider(key, () => value);
+
+  // Then
+  t.is(await context.resolve(key), value);
+});
+
+test('Resolve from alias', async t => {
   // Given
   const context = new Context();
   const key = 'test-key';
@@ -37,7 +50,7 @@ test('Resolve by alias', async t => {
   context.provide(key, value);
 
   // When
-  context.alias(aliasKey, key);
+  context.addAlias(aliasKey, key);
 
   // Then
   t.is(await context.resolve(aliasKey), value);

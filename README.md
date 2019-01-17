@@ -36,22 +36,4 @@ const { Context } = require('di-helper');
 
 ## Methods
 
-### `provide()`
-
-_WIP_
-
-### `alias()`
-
-_WIP_
-
-### `resolve()`
-
-_WIP_
-
-### `resolveAll()`
-
-_WIP_
-
-### `using()`
-
 _WIP_

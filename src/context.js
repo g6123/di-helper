@@ -1,7 +1,9 @@
 import autobind from 'autobind-decorator';
 import Promise from 'bluebird';
 import isCallable from 'is-callable';
-import { defaultHooks } from './hooks/';
+import DependencyError from './error';
+
+const OPTIONS = Symbol('PROVIDER_OPTIONS');
 
 class Context {
   static repo = {};
@@ -14,11 +16,12 @@ class Context {
     delete Context.repo[name];
   }
 
-  modules = {};
+  _providers = {};
+  _hooks = [];
+  _modules = {};
 
-  constructor({ name = null, hooks = defaultHooks } = {}) {
+  constructor({ name = null } = {}) {
     this.name = name;
-    this.hooks = [...hooks];
 
     if (name) {
       Context.repo[name] = this;
@@ -26,55 +29,52 @@ class Context {
   }
 
   @autobind
+  provide(key, value, provideOptions = {}) {
+    return this.addProvider(key, () => value, { constant: true, ...provideOptions });
+  }
+
+  @autobind
+  addProvider(key, provider, provideOptions = {}) {
+    if (!isCallable(provider)) {
+      throw new DependencyError('Provider must be callable');
+    }
+
+    this._providers[key] = provider;
+    this._providers[key][OPTIONS] = provideOptions;
+
+    return this;
+  }
+
+  @autobind
+  addAlias(key, existingKey, provideOptions = {}) {
+    return this.addProvider(key, () => this._providers[existingKey](), { alias: true, ...provideOptions });
+  }
+
+  @autobind
   addHook(hook) {
-    this.hooks.unshift(hook);
+    this._hooks.push(hook);
     return this;
   }
 
   @autobind
-  provide(key, originalValue, options = {}) {
-    const { value } = this.hooks.reduce(
-      (arg, hook) => {
-        arg.value = hook.onProvide(arg.key, arg.value, arg.originalValue, arg.options);
-        return arg;
-      },
-      {
-        key,
-        originalValue,
-        value: originalValue,
-        options,
-      },
-    );
+  resolve(key, resolveOptions = {}) {
+    if (this._modules.hasOwnProperty(key)) {
+      return Promise.resolve(this._modules[key]);
+    }
 
-    this.modules[key] = value;
+    if (!this._providers.hasOwnProperty(key)) {
+      return Promise.reject(new DependencyError(`Cannot find provider: ${key}`));
+    }
 
-    return this;
-  }
+    const provider = this._providers[key];
+    const options = { ...provider[OPTIONS], ...resolveOptions };
 
-  @autobind
-  alias(key, existingKey) {
-    this.modules[key] = this.modules[existingKey];
-    return this;
-  }
-
-  @autobind
-  resolve(key, options = {}) {
-    const originalValue = this.modules[key];
-
-    return Promise.resolve(this.hooks.reverse())
-      .reduce(
-        async (arg, hook) => {
-          arg.value = await hook.onResolve(arg.key, arg.value, arg.originalValue, arg.options);
-          return arg;
-        },
-        {
-          key,
-          originalValue,
-          value: originalValue,
-          options,
-        },
-      )
-      .then(({ value }) => value);
+    return Promise.resolve(provider())
+      .then(value => this._applyPostResolveHooks(key, value, options))
+      .then(hookedValue => {
+        this._modules[key] = hookedValue;
+        return hookedValue;
+      });
   }
 
   @autobind
@@ -87,21 +87,21 @@ class Context {
     }
 
     if (cond instanceof RegExp) {
-      return Promise.resolve(Object.keys(this.modules))
+      return Promise.resolve(Object.keys(this._providers))
         .filter(key => cond.test(key))
         .map(key => this.resolve(key, options))
         .filter(values => !!values);
     }
 
     if (isCallable(cond)) {
-      return Promise.resolve(Object.keys(this.modules))
+      return Promise.resolve(Object.keys(this._providers))
         .filter(cond)
         .map(key => this.resolve(key, options))
         .filter(values => !!values);
     }
 
     if (cond === undefined || cond === true) {
-      return Promise.resolve(Object.keys(this.modules))
+      return Promise.resolve(Object.keys(this._providers))
         .map(key => this.resolve(key, options))
         .filter(values => !!values);
     }
@@ -118,6 +118,18 @@ class Context {
   @autobind
   using(cond, tags) {
     return consumer => (...ownArgs) => this.resolveAll(cond, tags).then(values => consumer(...values, ...ownArgs));
+  }
+
+  _applyPostResolveHooks(key, value, options) {
+    return Promise.reduce(
+      this._hooks,
+      (arg, hook) =>
+        Promise.resolve(hook.postResolve(arg)).then(value => {
+          arg.value = value;
+          return arg;
+        }),
+      { key, value, originalValue: value, options },
+    ).then(({ value }) => value);
   }
 }
 

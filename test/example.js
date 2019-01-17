@@ -1,5 +1,5 @@
 import test from 'ava';
-import { provide, using } from '../src';
+import { addProvider, using } from '../src';
 
 test('Example from README', async t => {
   // Given
@@ -11,7 +11,7 @@ test('Example from README', async t => {
   };
 
   // When
-  await provide('obj', () => {
+  await addProvider('obj', () => {
     return obj;
   });
 

@@ -19,24 +19,6 @@ test('Simple resolve through using()', async t => {
   t.is(resolvedValue, value);
 });
 
-test('Promise resolve through using()', async t => {
-  // Given
-  const context = new Context();
-  const key = 'test-key';
-  const value = 'test-value';
-  let resolvedValue;
-
-  // When
-  context.provide(key, Promise.resolve(value));
-
-  await context.using([key])(v => {
-    resolvedValue = v;
-  })();
-
-  // Then
-  t.is(resolvedValue, value);
-});
-
 test('Resolve through using() with additional arguments', async t => {
   // Given
   const context = new Context();
