@@ -1,0 +1,10 @@
+{
+  "plugins": ["plugins/markdown"],
+  "source": {
+    "include": ["README.md", "src"]
+  },
+  "opts": {
+    "destination": "docs",
+    "template": "node_modules/minami"
+  }
+}

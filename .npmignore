@@ -1,5 +1,13 @@
 .gitignore
+
+jsconfig.json
+.babelrc
+.eslint*
+.prettier*
 .nyc_output/
+jsdoc.json
+
 src/
 test/
-jsconfig.json
+docs/
+*.doc.js

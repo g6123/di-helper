@@ -8,7 +8,7 @@
   "main": "lib/index",
   "scripts": {
     "prepare": "npm run build",
-    "build": "del-cli lib/**/* && babel src/ -d lib/",
+    "build": "del-cli lib/**/* doc/**/* && babel src/ -d lib/ && jsdoc -c jsdoc.json",
     "test": "cross-env NODE_ENV=test nyc ava",
     "coverage": "nyc report --reporter=html --report-dir .nyc_output/coverage && opener .nyc_output/coverage/index.html",
     "clean": "del-cli lib/**/*"
@@ -35,6 +35,8 @@
     "eslint-config-prettier": "^3.3.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-prettier": "^3.0.1",
+    "jsdoc": "^3.5.5",
+    "minami": "^1.2.3",
     "nyc": "^13.1.0",
     "opener": "^1.5.1",
     "prettier": "^1.15.3"

@@ -9,19 +9,17 @@ A concise JavaScript dependency injector
 ```javascript
 import { provide } from 'di-helper';
 
-provide('logger').with(() => {
-  return console.log;
-});
+provide('logger').as(console.log);
 
 // ...
 
 import { using } from 'di-helper';
 
-const greet = using((['logger'], log => {
-  log('The logger has been injected');
+const greet = using((['logger'], (log, name) => {
+  log(`Hello ${name}!`);
 });
 
-greet();
+greet('world');
 ```
 
 ## Usage
@@ -40,6 +38,6 @@ import { Context } from 'di-helper';
 const { Context } = require('di-helper');
 ```
 
-## Methods
+## API
 
-_WIP_
+See [API documentation](https://g6123.github.io/di-helper/).
